@@ -78,10 +78,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   child: ListTile(
                     title: Text(item.name),
                     subtitle: Text(
-                      '${item.category} - \$${item.price.toStringAsFixed(2)}',
+                      '${item.category} - ${item.date.month}/${item.date.day}/${item.date.year}',
                     ),
                     trailing: Text(
-                      '${item.date.month}/${item.date.day}/${item.date.year}',
+                      '-${item.price.toStringAsFixed(2)} HTG',
                     ),
                   ),
                 );
