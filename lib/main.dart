@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_notion_budget/data/get_category_color.dart';
+import 'package:flutter_notion_budget/models/item_model.dart';
+import 'package:flutter_notion_budget/repository/budget_repository.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -31,8 +34,70 @@ class BudgetScreen extends StatefulWidget {
 }
 
 class _BudgetScreenState extends State<BudgetScreen> {
+  late Future<List<Item>> _futureItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureItems = BudgetRepository().getItems();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Budget Tracker'),
+        elevation: 2.0,
+      ),
+      body: FutureBuilder(
+        future: _futureItems,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final items = snapshot.data!;
+            return ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(
+                      color: getCategoryColor(item.category) ?? Colors.white,
+                      width: 2.0,
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    title: Text(item.name),
+                    subtitle: Text(
+                      '${item.category} - \$${item.price.toStringAsFixed(2)}',
+                    ),
+                    trailing: Text(
+                      '${item.date.month}/${item.date.day}/${item.date.year}',
+                    ),
+                  ),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
+
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
   }
 }
