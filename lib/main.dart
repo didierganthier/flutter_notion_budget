@@ -50,59 +50,67 @@ class _BudgetScreenState extends State<BudgetScreen> {
         title: const Text('Budget Tracker'),
         elevation: 2.0,
       ),
-      body: FutureBuilder(
-        future: _futureItems,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final items = snapshot.data!;
-            return ListView.builder(
-              itemCount: items.length + 1,
-              itemBuilder: (context, index) {
-                if (index == 0)
-                  return SpendingChart(
-                    items: items,
-                  );
+      body: RefreshIndicator(
+        onRefresh: () => Future.delayed(
+          const Duration(seconds: 1),
+          () => setState(() {
+            _futureItems = BudgetRepository().getItems();
+          }),
+        ),
+        child: FutureBuilder<List<Item>>(
+          future: _futureItems,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final items = snapshot.data!;
+              return ListView.builder(
+                itemCount: items.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0)
+                    return SpendingChart(
+                      items: items,
+                    );
 
-                final item = items[index - 1];
-                return Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                      color: getCategoryColor(item.category) ?? Colors.white,
-                      width: 2.0,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
+                  final item = items[index - 1];
+                  return Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(
+                        color: getCategoryColor(item.category) ?? Colors.white,
+                        width: 2.0,
                       ),
-                    ],
-                  ),
-                  child: ListTile(
-                    title: Text(item.name),
-                    subtitle: Text(
-                      '${item.category} - ${item.date.month}/${item.date.day}/${item.date.year}',
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    trailing: Text(
-                      '-${item.price.toStringAsFixed(2)} HTG',
+                    child: ListTile(
+                      title: Text(item.name),
+                      subtitle: Text(
+                        '${item.category} - ${item.date.month}/${item.date.day}/${item.date.year}',
+                      ),
+                      trailing: Text(
+                        '-${item.price.toStringAsFixed(2)} HTG',
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
+                  );
+                },
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            }
 
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        ),
       ),
     );
   }
