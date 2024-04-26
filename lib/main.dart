@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_notion_budget/data/get_category_color.dart';
 import 'package:flutter_notion_budget/models/item_model.dart';
 import 'package:flutter_notion_budget/repository/budget_repository.dart';
+import 'package:flutter_notion_budget/widgets/spending_chart.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -55,9 +56,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
           if (snapshot.hasData) {
             final items = snapshot.data!;
             return ListView.builder(
-              itemCount: items.length,
+              itemCount: items.length + 1,
               itemBuilder: (context, index) {
-                final item = items[index];
+                if (index == 0)
+                  return SpendingChart(
+                    items: items,
+                  );
+
+                final item = items[index - 1];
                 return Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
