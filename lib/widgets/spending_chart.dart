@@ -29,24 +29,51 @@ class SpendingChart extends StatelessWidget {
       child: Container(
           padding: const EdgeInsets.all(16.0),
           height: 360.0,
-          child: PieChart(
-            PieChartData(
-              sections: spending
-                  .map(
-                    (category, amount) => MapEntry(
-                      category,
-                      PieChartSectionData(
-                        color: getCategoryColor(category),
-                        value: amount,
-                        title: '\$${amount.toStringAsFixed(2)}',
-                        radius: 100.0,
+          child: Column(
+            children: [
+              Expanded(
+                child: PieChart(
+                  PieChartData(
+                    sections: spending
+                        .map(
+                          (category, amount) => MapEntry(
+                            category,
+                            PieChartSectionData(
+                              color: getCategoryColor(category),
+                              value: amount,
+                              title: '\$${amount.toStringAsFixed(2)}',
+                              radius: 100.0,
+                            ),
+                          ),
+                        )
+                        .values
+                        .toList(),
+                    sectionsSpace: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: spending.keys
+                    .map(
+                      (category) => Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 16.0,
+                            height: 16.0,
+                            color: getCategoryColor(category),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Text(category),
+                        ],
                       ),
-                    ),
-                  )
-                  .values
-                  .toList(),
-              sectionsSpace: 0,
-            ),
+                    )
+                    .toList(),
+              ),
+            ],
           )),
     );
   }
